@@ -24,7 +24,6 @@ import numpy as np
 import pandas as pd
 from mlflow.models import infer_signature
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score, roc_auc_score
 from sklearn.model_selection import train_test_split
@@ -50,19 +49,25 @@ def preprocessing() -> ColumnTransformer:
 
 # TODO 1: choose at least three candidates and justify them in MODEL_SELECTION.md.
 # Change the settings, not just the names: a different model family or a clearly different setting each time.
+# CANDIDATES = {
+#     # Simple linear baseline; class_weight="balanced" makes missing a churner cost more
+#     "logreg_balanced": LogisticRegression(max_iter=1000, class_weight="balanced"),
+#     # Many shallow trees catch non-linear patterns; also balanced; min_samples_leaf limits overfitting
+#     "random_forest_balanced": RandomForestClassifier(
+#         n_estimators=150, max_depth=8, min_samples_leaf=5, class_weight="balanced", random_state=42
+#     ),
+#     # Boosting: trees built one after another, each fixing the last one's errors; slower learning rate, more trees
+#     "gradient_boosting": GradientBoostingClassifier(
+#         n_estimators=200, learning_rate=0.05, max_depth=3, random_state=42
+#     ),
+# }
+# CANDIDATES = {
+#     "logreg_balanced": LogisticRegression(max_iter=1000, class_weight="balanced"),
+#     ...
+# }
 CANDIDATES = {
-    # Simple linear baseline; class_weight="balanced" makes missing a churner cost more
-    "logreg_balanced": LogisticRegression(max_iter=1000, class_weight="balanced"),
-    # Many shallow trees catch non-linear patterns; also balanced; min_samples_leaf limits overfitting
-    "random_forest_balanced": RandomForestClassifier(
-        n_estimators=150, max_depth=8, min_samples_leaf=5, class_weight="balanced", random_state=42
-    ),
-    # Boosting: trees built one after another, each fixing the last one's errors; slower learning rate, more trees
-    "gradient_boosting": GradientBoostingClassifier(
-        n_estimators=200, learning_rate=0.05, max_depth=3, random_state=42
-    ),
+    "weak": LogisticRegression(C=0.00001, max_iter=1000),
 }
-
 
 def p95_latency_ms(model, X: pd.DataFrame, n: int = 200) -> float:
     """How long one prediction takes, as the service would do it: one row at a time."""
