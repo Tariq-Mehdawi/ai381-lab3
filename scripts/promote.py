@@ -27,9 +27,8 @@ from mlflow import MlflowClient
 REGISTERED_NAME = "churn-model"
 ARTIFACTS = Path("artifacts")
 CHAMPION_FILE = ARTIFACTS / "champion.json"
-LATENCY_BUDGET_MS = 25.0  # TODO 1: choose your own p95 latency budget and say why in MODEL_SELECTION.md
-MIN_GAIN = 0.005  # TODO 2: how much better (F1 points) must a model be to replace the champion, and why?
-
+LATENCY_BUDGET_MS = 25.0  # API answers one customer per request; champion runs in 2.8 ms locally, CI runners are slower, so 25 ms leaves a safety margin
+MIN_GAIN = 0.01 # # a new model must beat the champion by a full F1 point, so noise in the test split can't replace it
 
 def best_candidate(batch: str) -> dict:
     runs = mlflow.search_runs(
